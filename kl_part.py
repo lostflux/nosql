@@ -50,3 +50,4 @@ if __name__ == "__main__":
     # blogname, permalink, userName, commentBody, timestamp= process_comment(line)
     # print(blogname, " ", permalink, " ", userName, " ", commentBody, " ", timestamp)
     # permalink = generate_perma_link(blogname, title)
+    pass
