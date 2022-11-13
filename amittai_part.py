@@ -68,9 +68,9 @@ class MongoBlogServer:
 
                     `show blogName`
 
-                    `comment blogname permalink userName commentBody timestamp`
+                    `comment blogName permalink userName commentBody timestamp`
 
-                    `delete blogname permalink userName timestamp`
+                    `delete blogName permalink userName timestamp`
         """
         args = shlex.split(request)
         print(f"args: {args}", file=stderr)
@@ -108,7 +108,7 @@ class MongoBlogServer:
         
         elif command == "show":
             if len(args) != 2:
-                print("ERROR: Not enough arguments.", file=stderr)
+                print("ERROR: Not enough or too many arguments.\nPlease only provide the blog name.", file=stderr)
                 return
 
             blog_name = args[1]
@@ -125,10 +125,11 @@ class MongoBlogServer:
 
     def add_post(self, blog_name, user_name, title, post_body, tags, time_stamp):
         """
-        Adds a post to the blog.
+            Adds a post to the blog.
         """
         # create permalink
         permalink = blog_name + "." + re.sub(r"[^0-9a-zA-Z]+", "_", title)
+
         # create post
         post = {
             'blogName': blog_name,
@@ -138,14 +139,14 @@ class MongoBlogServer:
             'tags': tags,
             'timestamp': time_stamp,
             'permalink': permalink,
-            'comments': []
+            'comments': [ ]
         }
 
         print(f"post: {post}")
         # insert post
         try:
             self.db.posts.insert_one(post)
-            print(f"Count of posts: {self.db.posts.count_documents()}")
+            print(f"Count of posts: {self.db.posts.count_documents()}") # DEBUG
         except Exception as e:
             print(f"ERROR: {e}", file=stderr)
 
@@ -156,17 +157,17 @@ class MongoBlogServer:
         
         # Find all posts for the given blog name.
         posts = self.db.posts.find({"blogName": blog_name})
-        print(f"Found {posts.count()} posts for blog {blog_name}")
+        print(f"Found {posts.count()} posts for blog {blog_name}") # DEBUG
 
         if posts is None:
             print("No posts found.", file=stderr)
             return
         
         message = f"""\n\nin {blog_name.title()}\n\n"""
-        print(posts)
+        print(posts) # DEBUG
 
         for post in posts:
-            print(post)
+            print(post) #DEBUG
 
             message += f"""
 
