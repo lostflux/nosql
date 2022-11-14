@@ -6,8 +6,8 @@ all: test clean
 
 .PHONY: test clean
 
-test: app.py tests.txt
-	python3 app.py < tests.txt
+test: app.py tests.in
+	python3 app.py < tests.in 
 
 clean:
 	rm -rf __pycache__
