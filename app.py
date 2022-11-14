@@ -185,30 +185,31 @@ class MongoBlogServer:
         for post in posts:
             message += f"""
 
-                \t - - - -
+                - - - -
 
-                \t\t title: \t{post['title']}
-                \t\t userName: \t{post['userName']}
-                \t\t timestamp: \t{post['timestamp']}
-                \t\t permalink: \t{post['permalink']}
-                \t\t body:
-                \t\t\t {post['postBody']}
+                  title: \t{post['title']}
+                  userName: \t{post['userName']}
+                  timestamp: \t{post['timestamp']}
+                  permalink: \t{post['permalink']}
+                  body:
+                      {post['postBody']}
 
 
-                \t\t - - - -
+                  - - - -
             """
 
-            for comment in post['comments']:
+            for comment_permalink in post['comments']:
+                comment = self.db.posts.find_one({"permalink": comment_permalink})
                 message += f"""
-                    \t\t\t userName: \t{comment['userName']}
-                    \t\t\t permalink: \t{comment['permalink']}
-                    \t\t\t comment:
-                    \t\t\t\t {comment['commentBody']}
+                        userName: \t{comment['userName']}
+                        permalink: \t{comment['permalink']}
+                        comment:
+                           {comment['commentBody']}
                 """
 
         print(message)
 
-    def generate_comment_permalink():
+    def generate_comment_permalink(self):
         """Generate a permanent link for a comment."""
         ts = time.time()
         date_time = datetime.fromtimestamp(ts)
@@ -216,7 +217,7 @@ class MongoBlogServer:
         date_permalink = date_times[0] + 'T' + date_times[1][:-3]+ 'Z'
         return date_permalink
 
-    def add_comment(self, post_perma_link, user_name, comment_body):
+    def add_comment(self, post_permalink, user_name, comment_body):
         """Add a comment to a post."""
         # create permalink
         permalink = self.generate_comment_permalink()
@@ -225,7 +226,7 @@ class MongoBlogServer:
         comment = {
             'userName': user_name,
             'permalink': permalink,
-            'postBody': comment_body,
+            'commentBody': comment_body,
             'comments': []
         }
 
@@ -233,7 +234,7 @@ class MongoBlogServer:
             # insert comment into the posts
             self.db.posts.insert_one(comment)
             # insert permalink of this comment to the post using post_perma_link
-            self.db.posts.update_one({"permalink": post_perma_link}, {"$push": {"comments": permalink}})
+            self.db.posts.update_one({"permalink": post_permalink}, {"$push": {"comments": permalink}})
         except Exception as e:
             print(f"ERROR: {e}", file=stderr)
 
@@ -255,13 +256,17 @@ def main():
     server = MongoBlogServer()
     while True:
         try:
-            request = input("Enter request: ")
+            request = input("Request? ")
             if (len(request)) == 0:
+                print()     # force a new line before next prompt
                 continue
             print(f"\nUser Request: {request}")
             server.handle_request(request)
-        except Exception as e:
+        except EOFError as e:
             server.handle_request("exit")
+        except Exception as e:
+            print(f"{e.__class__.__name__}: {str(e)}", file=stderr)
+            exit()
 
 if __name__ == "__main__":
     main()
