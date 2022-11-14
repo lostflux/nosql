@@ -22,6 +22,16 @@ MongoDB Schema:
 
 We may want to track an index on blogName.
 Since we need to find posts by blogName when showing a blog.
+
+MongoDB Schema for Comments:
+{
+    "ObjectId": "ObjectId",
+    "userName": "username",
+    "permalink": "permalink", (index this)
+    "commentBody": "comment",
+    "comments (permalink reference)": [],
+}
+
 """
 
 from pymongo import MongoClient, ASCENDING    # For MongoDB
@@ -29,6 +39,8 @@ import re                                     # For regular expressions.
 import shlex                                  # For splitting strings.
 from sys import stderr                        # For printing to stderr.
 from datetime import datetime                 # For timestamps.
+import time
+from dbconfig import read_db_config           # For reading in mongodb config.
 
 """
   NOTE: collection name = "blog"
@@ -43,7 +55,8 @@ class MongoBlogServer:
         """
             Connect to the MongoDB server.
         """
-        self.client = MongoClient()
+        self.config = read_db_config()
+        self.client = MongoClient(self.config['host'])
         self.db = self.client.blog
         self.collection = self.db.posts
 
@@ -52,6 +65,7 @@ class MongoBlogServer:
 
         # create index on blogName
         self.db.posts.create_index([('blogName', ASCENDING)])
+        self.db.posts.create_index([('permalink', ASCENDING)])
 
     def handle_request(self, request: str):
         """
@@ -82,7 +96,7 @@ class MongoBlogServer:
 
         if command == "post":
 
-            if len(args) != 6:
+            if len(args) != 7:
                 print("ERROR: Not enough arguments.", file=stderr)
                 return
 
@@ -115,10 +129,29 @@ class MongoBlogServer:
             self.show_posts(blog_name)
 
         elif command == "comment":
-            pass
+            if len(args) != 6:
+                print("ERROR: Not enough or too many arguments.", file=stderr)
+                return
+            blog_name = args[1]
+            post_perma_link = args[2]
+            user_name = args[3]
+            comment_body = args[4]
+            time_stamp = args[5]
+            self.add_comment(post_perma_link, user_name, comment_body)
 
         elif command == "delete":
-            pass
+            if len(args) != 5:
+                print("ERROR: Not enough or too many arguments.", file=stderr)
+                return
+            blog_name = args[1]
+            permalink = args[2]
+            user_name = args[3]
+            time_stamp = args[4]
+            self.delete_post(permalink, user_name)
+        
+        elif command == "exit":
+            print("Exiting...")
+            exit(0)
 
         else:
             return "Invalid request: " + request
@@ -194,7 +227,48 @@ class MongoBlogServer:
 
         print(message)
 
-        
+    def generate_comment_permalink():
+        """Generate a permanent link for a comment."""
+        ts = time.time()
+        date_time = datetime.fromtimestamp(ts)
+        date_times = str(date_time).split()
+        date_permalink = date_times[0] + 'T' + date_times[1][:-3]+ 'Z'
+        return date_permalink
+
+    def add_comment(self, post_perma_link, user_name, comment_body):
+        """Add a comment to a post."""
+        # create permalink
+        permalink = self.generate_comment_permalink()
+
+        # create comment
+        comment = {
+            'userName': user_name,
+            'permalink': permalink,
+            'postBody': comment_body,
+            'comments': []
+        }
+
+        try:
+            # insert comment into the posts
+            self.db.posts.insert_one(comment)
+            # insert permalink of this comment to the post using post_perma_link
+            self.db.posts.update_one({"permalink": post_perma_link}, {"$push": {"comments": permalink}})
+        except Exception as e:
+            print(f"ERROR: {e}", file=stderr)
+
+    def delete_post(self, permalink, user_name):
+        """
+            Delete a post from a blog.
+            delete blogname permalink userName timestamp
+        """
+        message = "deleted by " + user_name
+
+        try:
+            # delete the post by update the postbody
+            # for both the post and the comment in the postBody
+            self.db.posts.update_one({"permalink": permalink},{"postBody": message})
+        except Exception as e:
+            print(f"ERROR: {e}", file=stderr)
 
 def main():
     server = MongoBlogServer()
