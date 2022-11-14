@@ -1,0 +1,7 @@
+post politics siavava "Make Mongo Great Again" "gh gh gh gh gh gh gh" "politics,news,win,no"
+show politics
+post politics lou "Make MySQL great again" "gh gh gh gh gh gh" "politics,facts, win, no"
+show politics
+comment politics politics.Make_Mongo_Great_Again lou "I do not agree with this post"
+comment politics politics.Make_MySQL_Great_Again siavava "capitalism is the best"
+show politics

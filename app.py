@@ -87,7 +87,7 @@ class MongoBlogServer:
                     `delete blogName permalink userName timestamp`
         """
         args = shlex.split(request)
-        print(f"args: {args}", file=stderr)
+        # print(f"args: {args}", file=stderr)
         if len(args) == 0:
             print("ERROR: No command given.", file=stderr)
             return
@@ -96,28 +96,16 @@ class MongoBlogServer:
 
         if command == "post":
 
-            if len(args) != 7:
+            if len(args) != 6:
                 print("ERROR: Not enough arguments.", file=stderr)
                 return
 
-            blog_name = args[1]
+            blog_name = args[1].lower()
             user_name = args[2]
             title = args[3]
             post_body = args[4]
             tags = args[5].split(",")
             time_stamp = str(datetime.now())
-
-            # DEBUG
-            print(
-                f"""
-                    blog_name: {blog_name}
-                    user_name: {user_name}
-                    title: {title}
-                    post_body: {post_body}
-                    tags: {tags}
-                    time_stamp: {time_stamp}
-                """
-            )
             self.add_post(blog_name, user_name, title, post_body, tags, time_stamp)
         
         elif command == "show":
@@ -129,21 +117,21 @@ class MongoBlogServer:
             self.show_posts(blog_name)
 
         elif command == "comment":
-            if len(args) != 6:
+            if len(args) != 5:
                 print("ERROR: Not enough or too many arguments.", file=stderr)
                 return
-            blog_name = args[1]
+            blog_name = args[1].lower()
             post_perma_link = args[2]
             user_name = args[3]
             comment_body = args[4]
-            time_stamp = args[5]
+            # time_stamp = args[5]
             self.add_comment(post_perma_link, user_name, comment_body)
 
         elif command == "delete":
             if len(args) != 5:
                 print("ERROR: Not enough or too many arguments.", file=stderr)
                 return
-            blog_name = args[1]
+            blog_name = args[1].lower()
             permalink = args[2]
             user_name = args[3]
             time_stamp = args[4]
@@ -174,12 +162,9 @@ class MongoBlogServer:
             'permalink': permalink,
             'comments': [ ]
         }
-
-        print(f"post: {post}")
         # insert post
         try:
             self.db.posts.insert_one(post)
-            print(f"Count of posts: {self.db.posts.count_documents()}") # DEBUG
         except Exception as e:
             print(f"ERROR: {e}", file=stderr)
 
@@ -190,18 +175,14 @@ class MongoBlogServer:
         
         # Find all posts for the given blog name.
         posts = self.db.posts.find({"blogName": blog_name})
-        print(f"Found {posts.count()} posts for blog {blog_name}") # DEBUG
 
         if posts is None:
             print("No posts found.", file=stderr)
             return
         
         message = f"""\n\nin {blog_name.title()}\n\n"""
-        print(posts) # DEBUG
 
         for post in posts:
-            print(post) #DEBUG
-
             message += f"""
 
                 \t - - - -
@@ -273,8 +254,14 @@ class MongoBlogServer:
 def main():
     server = MongoBlogServer()
     while True:
-        request = input("Enter request: ")
-        server.handle_request(request)
+        try:
+            request = input("Enter request: ")
+            if (len(request)) == 0:
+                continue
+            print(f"\nUser Request: {request}")
+            server.handle_request(request)
+        except Exception as e:
+            server.handle_request("exit")
 
 if __name__ == "__main__":
     main()
