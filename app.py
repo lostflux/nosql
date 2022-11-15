@@ -183,6 +183,7 @@ class MongoBlogServer:
         message = f"""\n\nin {blog_name.title()}\n\n"""
 
         for post in posts:
+            print(post.__class__.__name__)
             message += f"""
 
                 - - - -
@@ -199,15 +200,40 @@ class MongoBlogServer:
             """
 
             for comment_permalink in post['comments']:
-                comment = self.db.posts.find_one({"permalink": comment_permalink})
-                message += f"""
-                        userName: \t{comment['userName']}
-                        permalink: \t{comment['permalink']}
-                        comment:
-                           {comment['postBody']}
-                """
+                # comment = self.db.posts.find_one({"permalink": comment_permalink})
+                message += self.show_comment(comment_permalink)
+                # message += f"""
+                #         userName: \t{comment['userName']}
+                #         permalink: \t{comment['permalink']}
+                #         comment:
+                #            {comment['commentBody']}
+                # """
 
         print(message)
+    def show_comment(self, comment_permalink: str, shift=3):
+        """
+            Shows all comments for a post.
+        """
+        
+        comment = self.db.posts.find_one({"permalink": comment_permalink})
+        comment_string = f"""
+                      userName: \t{comment['userName']}
+                      permalink: \t{comment['permalink']}
+                      comment:
+                          {comment['commentBody']}
+        """
+
+        # shift 
+        if len(comment["comments"]) > 0:
+            for comment_permalink in comment["comments"]:
+                sub_comment = ("\n" + (' ' * shift)).join(self.show_comment(comment_permalink, shift+3).split("\n"))
+                comment_string += f"""
+                        - - - -
+                             {sub_comment}
+                    """
+
+        return comment_string
+                
 
     # def generate_comment_permalink(self, time_stamp):
     #     """Generate a permanent link for a comment."""
@@ -268,5 +294,37 @@ def main():
             print(f"{e.__class__.__name__}: {str(e)}", file=stderr)
             exit()
 
+def test_main(file=None):
+    """
+        Same as `main`, but allows you to paste multiple lines in the terminal.
+
+        Also allows you to specify file to read.
+
+        After processing the file, it will enter the main terminal loop.
+    """
+    server = MongoBlogServer()
+    try:
+        if file:
+            print(f"Reading from file: {file}")
+            with open(file, 'r') as f:
+                for request in f:
+                    print(f"\nUser Request: {request}")
+                    server.handle_request(request)
+
+        print("Reading from terminal.")
+        while True:
+            request = input("Request? ")
+            if (len(request)) == 0:
+                print()     # force a new line before next prompt
+                continue
+            print(f"\nUser Request: {request}")
+            server.handle_request(request)
+    except EOFError as e:
+        server.handle_request("exit")
+    except Exception as e:
+        print(f"{e.__class__.__name__}: {str(e)}", file=stderr)
+        exit()
+
 if __name__ == "__main__":
-    main()
+    test_main(file="tests.in")
+    # main()
