@@ -1,0 +1,185 @@
+python3 app.py < tests.in 
+Request? Request: post politics siavava "Make Mongo Great Again" "gh gh gh gh gh gh gh" "politics,news,win,no" 2022-11-14T19:41:01.865Z
+Request? Request: show politics
+
+
+in Politics
+
+
+
+                - - - -
+
+                  title: 	Make Mongo Great Again
+                  userName: 	siavava
+                  timestamp: 	2022-11-14T19:41:01.865Z
+                  permalink: 	politics.Make_Mongo_Great_Again
+                  body:
+                      gh gh gh gh gh gh gh
+
+
+                  - - - -
+            
+Request? Request: post politics lou "Make MySQL great again" "gh gh gh gh gh gh" "politics,facts, win, no" 2022-11-14T19:41:01.929Z
+Request? Request: show politics
+
+
+in Politics
+
+
+
+                - - - -
+
+                  title: 	Make Mongo Great Again
+                  userName: 	siavava
+                  timestamp: 	2022-11-14T19:41:01.865Z
+                  permalink: 	politics.Make_Mongo_Great_Again
+                  body:
+                      gh gh gh gh gh gh gh
+
+
+                  - - - -
+            
+
+                - - - -
+
+                  title: 	Make MySQL great again
+                  userName: 	lou
+                  timestamp: 	2022-11-14T19:41:01.929Z
+                  permalink: 	politics.Make_MySQL_great_again
+                  body:
+                      gh gh gh gh gh gh
+
+
+                  - - - -
+            
+Request? Request: comment politics politics.Make_Mongo_Great_Again lou "I do not agree with this post" 2022-11-14T19:41:01.981Z
+Request? Request: comment politics politics.Make_Mongo_Great_Again siavava "capitalism is the best" 2022-11-14T19:41:01.813Z
+Request? Request: show politics
+
+
+in Politics
+
+
+
+                - - - -
+
+                  title: 	Make Mongo Great Again
+                  userName: 	siavava
+                  timestamp: 	2022-11-14T19:41:01.865Z
+                  permalink: 	politics.Make_Mongo_Great_Again
+                  body:
+                      gh gh gh gh gh gh gh
+
+
+                  - - - -
+            
+                      userName: 	lou
+                      permalink: 	2022-11-14T19:41:01.981Z
+                      comment:
+                          I do not agree with this post
+        
+                      userName: 	siavava
+                      permalink: 	2022-11-14T19:41:01.813Z
+                      comment:
+                          capitalism is the best
+        
+
+                - - - -
+
+                  title: 	Make MySQL great again
+                  userName: 	lou
+                  timestamp: 	2022-11-14T19:41:01.929Z
+                  permalink: 	politics.Make_MySQL_great_again
+                  body:
+                      gh gh gh gh gh gh
+
+
+                  - - - -
+            
+Request? Request: delete politics politics.Make_Mongo_Great_Again lou 2022-11-15T19:43:01.865Z
+Request? Request: show politics
+
+
+in Politics
+
+
+
+                - - - -
+
+                  title: 	Make Mongo Great Again
+                  userName: 	siavava
+                  timestamp: 	2022-11-14T19:41:01.865Z
+                  permalink: 	politics.Make_Mongo_Great_Again
+                  body:
+                      deleted by lou
+
+
+                  - - - -
+            
+                      userName: 	lou
+                      permalink: 	2022-11-14T19:41:01.981Z
+                      comment:
+                          I do not agree with this post
+        
+                      userName: 	siavava
+                      permalink: 	2022-11-14T19:41:01.813Z
+                      comment:
+                          capitalism is the best
+        
+
+                - - - -
+
+                  title: 	Make MySQL great again
+                  userName: 	lou
+                  timestamp: 	2022-11-14T19:41:01.929Z
+                  permalink: 	politics.Make_MySQL_great_again
+                  body:
+                      gh gh gh gh gh gh
+
+
+                  - - - -
+            
+Request? Request: delete politics 2022-11-14T19:41:01.981Z siavava 2022-11-16T02:42:01.813Z
+Request? Request: show politics
+
+
+in Politics
+
+
+
+                - - - -
+
+                  title: 	Make Mongo Great Again
+                  userName: 	siavava
+                  timestamp: 	2022-11-14T19:41:01.865Z
+                  permalink: 	politics.Make_Mongo_Great_Again
+                  body:
+                      deleted by lou
+
+
+                  - - - -
+            
+                      userName: 	lou
+                      permalink: 	2022-11-14T19:41:01.981Z
+                      comment:
+                          deleted by siavava
+        
+                      userName: 	siavava
+                      permalink: 	2022-11-14T19:41:01.813Z
+                      comment:
+                          capitalism is the best
+        
+
+                - - - -
+
+                  title: 	Make MySQL great again
+                  userName: 	lou
+                  timestamp: 	2022-11-14T19:41:01.929Z
+                  permalink: 	politics.Make_MySQL_great_again
+                  body:
+                      gh gh gh gh gh gh
+
+
+                  - - - -
+            
+Request? Exiting...

@@ -226,15 +226,6 @@ class MongoBlogServer:
                     """
 
         return comment_string
-                
-
-    # def generate_comment_permalink(self, time_stamp):
-    #     """Generate a permanent link for a comment."""
-    #     ts = time.time()
-    #     date_time = datetime.fromtimestamp(ts)
-    #     date_times = str(date_time).split()
-    #     date_permalink = date_times[0] + 'T' + date_times[1][:-3]+ 'Z'
-    #     return date_permalink
 
     def add_comment(self, post_permalink, user_name, comment_body, time_stamp):
         """Add a comment to a post."""
