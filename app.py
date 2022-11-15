@@ -15,7 +15,7 @@ MongoDB Schema:
     comments: [
         { 
             permalink: date? (auto generated),
-            commentBody: string
+            postBody: string
         }
     ]
 }
@@ -96,7 +96,7 @@ class MongoBlogServer:
 
         if command == "post":
 
-            if len(args) != 6:
+            if len(args) != 7:
                 print("ERROR: Not enough arguments.", file=stderr)
                 return
 
@@ -105,7 +105,7 @@ class MongoBlogServer:
             title = args[3]
             post_body = args[4]
             tags = args[5].split(",")
-            time_stamp = str(datetime.now())
+            time_stamp = args[6]
             self.add_post(blog_name, user_name, title, post_body, tags, time_stamp)
         
         elif command == "show":
@@ -117,15 +117,15 @@ class MongoBlogServer:
             self.show_posts(blog_name)
 
         elif command == "comment":
-            if len(args) != 5:
+            if len(args) != 6:
                 print("ERROR: Not enough or too many arguments.", file=stderr)
                 return
             blog_name = args[1].lower()
             post_perma_link = args[2]
             user_name = args[3]
             comment_body = args[4]
-            # time_stamp = args[5]
-            self.add_comment(post_perma_link, user_name, comment_body)
+            time_stamp = args[5]
+            self.add_comment(post_perma_link, user_name, comment_body, time_stamp)
 
         elif command == "delete":
             if len(args) != 5:
@@ -135,7 +135,7 @@ class MongoBlogServer:
             permalink = args[2]
             user_name = args[3]
             time_stamp = args[4]
-            self.delete_post(permalink, user_name)
+            self.delete_post(blog_name, permalink, user_name, time_stamp)
         
         elif command == "exit":
             print("Exiting...")
@@ -204,29 +204,29 @@ class MongoBlogServer:
                         userName: \t{comment['userName']}
                         permalink: \t{comment['permalink']}
                         comment:
-                           {comment['commentBody']}
+                           {comment['postBody']}
                 """
 
         print(message)
 
-    def generate_comment_permalink(self):
-        """Generate a permanent link for a comment."""
-        ts = time.time()
-        date_time = datetime.fromtimestamp(ts)
-        date_times = str(date_time).split()
-        date_permalink = date_times[0] + 'T' + date_times[1][:-3]+ 'Z'
-        return date_permalink
+    # def generate_comment_permalink(self, time_stamp):
+    #     """Generate a permanent link for a comment."""
+    #     ts = time.time()
+    #     date_time = datetime.fromtimestamp(ts)
+    #     date_times = str(date_time).split()
+    #     date_permalink = date_times[0] + 'T' + date_times[1][:-3]+ 'Z'
+    #     return date_permalink
 
-    def add_comment(self, post_permalink, user_name, comment_body):
+    def add_comment(self, post_permalink, user_name, comment_body, time_stamp):
         """Add a comment to a post."""
         # create permalink
-        permalink = self.generate_comment_permalink()
+        permalink = time_stamp
 
         # create comment
         comment = {
             'userName': user_name,
             'permalink': permalink,
-            'commentBody': comment_body,
+            'postBody': comment_body,
             'comments': []
         }
 
@@ -238,7 +238,7 @@ class MongoBlogServer:
         except Exception as e:
             print(f"ERROR: {e}", file=stderr)
 
-    def delete_post(self, permalink, user_name):
+    def delete_post(self, blogname, permalink, user_name, timestamp):
         """
             Delete a post from a blog.
             delete blogname permalink userName timestamp
@@ -248,7 +248,7 @@ class MongoBlogServer:
         try:
             # delete the post by update the postbody
             # for both the post and the comment in the postBody
-            self.db.posts.update_one({"permalink": permalink},{"postBody": message})
+            self.db.posts.update_one({"permalink": permalink},{"$set":{"postBody": message}})
         except Exception as e:
             print(f"ERROR: {e}", file=stderr)
 

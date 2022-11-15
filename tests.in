@@ -1,7 +1,11 @@
-post politics siavava "Make Mongo Great Again" "gh gh gh gh gh gh gh" "politics,news,win,no"
+post politics siavava "Make Mongo Great Again" "gh gh gh gh gh gh gh" "politics,news,win,no" 2022-11-14T19:41:01.865Z
 show politics
-post politics lou "Make MySQL great again" "gh gh gh gh gh gh" "politics,facts, win, no"
+post politics lou "Make MySQL great again" "gh gh gh gh gh gh" "politics,facts, win, no" 2022-11-14T19:41:01.929Z
 show politics
-comment politics politics.Make_Mongo_Great_Again lou "I do not agree with this post"
-comment politics politics.Make_Mongo_Great_Again siavava "capitalism is the best"
+comment politics politics.Make_Mongo_Great_Again lou "I do not agree with this post" 2022-11-14T19:41:01.981Z
+comment politics politics.Make_Mongo_Great_Again siavava "capitalism is the best" 2022-11-14T19:41:01.813Z
+show politics
+delete politics politics.Make_Mongo_Great_Again lou 2022-11-15T19:43:01.865Z
+show politics
+delete politics 2022-11-14T19:41:01.981Z siavava 2022-11-16T02:42:01.813Z
 show politics
