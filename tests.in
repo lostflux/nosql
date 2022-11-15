@@ -2,13 +2,8 @@ post politics siavava "Make Mongo Great Again" "gh gh gh gh gh gh gh" "politics,
 show politics
 post politics lou "Make MySQL great again" "gh gh gh gh gh gh" "politics,facts, win, no" 2022-11-14T19:41:01.929Z
 show politics
-<<<<<<< HEAD
 comment politics politics.Make_Mongo_Great_Again lou "I do not agree with this post" 2022-11-14T19:41:01.981Z
 comment politics politics.Make_Mongo_Great_Again siavava "capitalism is the best" 2022-11-14T19:41:01.813Z
-=======
-comment politics politics.Make_Mongo_Great_Again siavava "capitalism is the best"
-comment politics politics.Make_Mongo_Great_Again lou "I do not agree with this post"
->>>>>>> 5bfbe7e (Show comment updates)
 show politics
 delete politics politics.Make_Mongo_Great_Again lou 2022-11-15T19:43:01.865Z
 show politics
