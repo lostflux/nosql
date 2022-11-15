@@ -65,7 +65,7 @@ class MongoBlogServer:
 
         # create index on blogName
         self.db.posts.create_index([('blogName', ASCENDING)])
-        self.db.posts.create_index([('permalink', ASCENDING)])
+        self.db.posts.create_index([('permalink', ASCENDING)], unique=True)
 
     def handle_request(self, request: str):
         """
@@ -87,15 +87,12 @@ class MongoBlogServer:
                     `delete blogName permalink userName timestamp`
         """
         args = shlex.split(request)
-        # print(f"args: {args}", file=stderr)
         if len(args) == 0:
             print("ERROR: No command given.", file=stderr)
             return
 
         command = args[0]
-
         if command == "post":
-
             if len(args) != 7:
                 print("ERROR: Not enough arguments.", file=stderr)
                 return
@@ -120,12 +117,13 @@ class MongoBlogServer:
             if len(args) != 6:
                 print("ERROR: Not enough or too many arguments.", file=stderr)
                 return
+
             blog_name = args[1].lower()
-            post_perma_link = args[2]
+            post_permalink = args[2]
             user_name = args[3]
             comment_body = args[4]
             time_stamp = args[5]
-            self.add_comment(post_perma_link, user_name, comment_body, time_stamp)
+            self.add_comment(post_permalink, user_name, comment_body, time_stamp)
 
         elif command == "delete":
             if len(args) != 5:
@@ -183,7 +181,6 @@ class MongoBlogServer:
         message = f"""\n\nin {blog_name.title()}\n\n"""
 
         for post in posts:
-            print(post.__class__.__name__)
             message += f"""
 
                 - - - -
@@ -200,19 +197,15 @@ class MongoBlogServer:
             """
 
             for comment_permalink in post['comments']:
-                # comment = self.db.posts.find_one({"permalink": comment_permalink})
                 message += self.show_comment(comment_permalink)
-                # message += f"""
-                #         userName: \t{comment['userName']}
-                #         permalink: \t{comment['permalink']}
-                #         comment:
-                #            {comment['commentBody']}
-                # """
 
         print(message)
+
     def show_comment(self, comment_permalink: str, shift=3):
         """
             Shows all comments for a post.
+
+            Recursively handles nested comments.
         """
         
         comment = self.db.posts.find_one({"permalink": comment_permalink})
@@ -220,14 +213,14 @@ class MongoBlogServer:
                       userName: \t{comment['userName']}
                       permalink: \t{comment['permalink']}
                       comment:
-                          {comment['commentBody']}
+                          {comment['postBody']}
         """
 
         # shift 
-        if len(comment["comments"]) > 0:
-            for comment_permalink in comment["comments"]:
-                sub_comment = ("\n" + (' ' * shift)).join(self.show_comment(comment_permalink, shift+3).split("\n"))
-                comment_string += f"""
+        # if len(comment["comments"]) > 0:
+        for nested_comment_permalink in comment["comments"]:
+            sub_comment = ("\n" + (' ' * shift)).join(self.show_comment(nested_comment_permalink, shift+3).split("\n"))
+            comment_string += f"""
                         - - - -
                              {sub_comment}
                     """
@@ -267,7 +260,8 @@ class MongoBlogServer:
     def delete_post(self, blogname, permalink, user_name, timestamp):
         """
             Delete a post from a blog.
-            delete blogname permalink userName timestamp
+
+            `delete blogname permalink userName timestamp`
         """
         message = "deleted by " + user_name
 
@@ -275,6 +269,7 @@ class MongoBlogServer:
             # delete the post by update the postbody
             # for both the post and the comment in the postBody
             self.db.posts.update_one({"permalink": permalink},{"$set":{"postBody": message}})
+            
         except Exception as e:
             print(f"ERROR: {e}", file=stderr)
 
@@ -286,7 +281,7 @@ def main():
             if (len(request)) == 0:
                 print()     # force a new line before next prompt
                 continue
-            print(f"\nUser Request: {request}")
+            print(f"Request: {request}")
             server.handle_request(request)
         except EOFError as e:
             server.handle_request("exit")
@@ -301,6 +296,8 @@ def test_main(file=None):
         Also allows you to specify file to read.
 
         After processing the file, it will enter the main terminal loop.
+
+        Don't pipe file into stdin if using this.
     """
     server = MongoBlogServer()
     try:
@@ -308,7 +305,7 @@ def test_main(file=None):
             print(f"Reading from file: {file}")
             with open(file, 'r') as f:
                 for request in f:
-                    print(f"\nUser Request: {request}")
+                    print(f"\nRequest: {request}")
                     server.handle_request(request)
 
         print("Reading from terminal.")
@@ -317,7 +314,7 @@ def test_main(file=None):
             if (len(request)) == 0:
                 print()     # force a new line before next prompt
                 continue
-            print(f"\nUser Request: {request}")
+            print(f"Request: {request}")
             server.handle_request(request)
     except EOFError as e:
         server.handle_request("exit")
@@ -326,5 +323,4 @@ def test_main(file=None):
         exit()
 
 if __name__ == "__main__":
-    test_main(file="tests.in")
-    # main()
+    main()
